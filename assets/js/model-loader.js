@@ -10,9 +10,13 @@
 
         async loadTransformers() {
             if (this.transformers) return this.transformers;
+
             if (!this.loading.transformers) {
-                this.loading.transformers = import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');
+                this.loading.transformers = import(
+                    'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2'
+                );
             }
+
             this.transformers = await this.loading.transformers;
             return this.transformers;
         },
@@ -21,6 +25,7 @@
             if (this.whisperPipeline) return this.whisperPipeline;
 
             const transformers = await this.loadTransformers();
+
             this.whisperPipeline = await transformers.pipeline(
                 'automatic-speech-recognition',
                 'onnx-community/whisper-tiny',
@@ -30,6 +35,7 @@
                     progress_callback: progressCallback || function () {}
                 }
             );
+
             return this.whisperPipeline;
         },
 
@@ -37,6 +43,7 @@
             if (this.translationPipeline) return this.translationPipeline;
 
             const transformers = await this.loadTransformers();
+
             this.translationPipeline = await transformers.pipeline(
                 'translation',
                 'Xenova/opus-mt-en-uk',
@@ -46,30 +53,33 @@
                     progress_callback: progressCallback || function () {}
                 }
             );
+
             return this.translationPipeline;
         },
 
         async loadONNX(progressCallback) {
             if (this.ort) return this.ort;
 
-            this.ort = await import(
+            const module = await import(
                 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.mjs'
             );
 
-            this.ort.env.wasm.wasmPaths =
+            module.env.wasm.wasmPaths =
                 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/';
 
-            this.ort.env.wasm.numThreads = Math.max(
+            module.env.wasm.numThreads = Math.max(
                 1,
                 Math.min(4, (navigator.hardwareConcurrency || 2) - 1)
             );
 
-            if (progressCallback) progressCallback({
-                status: 'ready',
-                progress: 100
-            });
+            this.ort = module;
+            window.ort = module;
 
-            return this.ort;
+            if (progressCallback) {
+                progressCallback({ status: 'ready', progress: 100 });
+            }
+
+            return module;
         },
 
         async createDemucsSession(modelUrl, progressCallback) {
@@ -88,16 +98,14 @@
                 options && options.progress
             );
 
-            const result = await recognizer(audio, {
+            return recognizer(audio, {
                 return_timestamps: 'chunk',
                 chunk_length_s: 20,
                 stride_length_s: 5,
-                ...((options && options.language) ? {
-                    language: options.language
-                } : {})
+                ...(options && options.language
+                    ? { language: options.language }
+                    : {})
             });
-
-            return result;
         },
 
         async translate(text, options) {
@@ -105,15 +113,13 @@
                 options && options.progress
             );
 
-            const result = await translator(text, {
+            const result = await translator(String(text || ''), {
                 max_new_tokens: 512
             });
 
-            if (Array.isArray(result) && result[0]) {
-                return result[0].translation_text || '';
-            }
-
-            return '';
+            return Array.isArray(result) && result[0]
+                ? result[0].translation_text || ''
+                : '';
         },
 
         clear() {
@@ -122,6 +128,7 @@
             this.transformers = null;
             this.ort = null;
             this.loading = {};
+            window.ort = null;
         }
     };
 
