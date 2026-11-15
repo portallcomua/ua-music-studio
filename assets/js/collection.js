@@ -4,7 +4,7 @@
     class UAMSCollection {
         constructor(config) {
             this.config = config || {};
-            this.ajaxUrl = this.config.ajaxUrl || window.ajaxurl || '';
+            this.ajaxUrl = this.config.ajaxUrl || '';
             this.nonce = this.config.nonce || '';
             this.songs = [];
         }
@@ -14,146 +14,200 @@
                 throw new Error('Не визначено адресу WordPress AJAX.');
             }
 
-            const body = new URLSearchParams();
+            const body = new FormData();
+            body.append('action', action);
+            body.append('nonce', this.nonce);
 
-            body.set('action', action);
-            body.set('nonce', this.nonce);
-
-            Object.keys(data || {}).forEach(key => {
-                const value = data[key];
-
-                body.set(
+            Object.entries(data || {}).forEach(([key, value]) => {
+                body.append(
                     key,
-                    typeof value === 'string'
-                        ? value
-                        : JSON.stringify(value)
+                    typeof value === 'object' && value !== null
+                        ? JSON.stringify(value)
+                        : String(value ?? '')
                 );
             });
 
             const response = await fetch(this.ajaxUrl, {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: body.toString()
+                body
             });
 
-            const result = await response.json();
+            let result;
+
+            try {
+                result = await response.json();
+            } catch (error) {
+                throw new Error('Сервер повернув некоректну відповідь замість JSON.');
+            }
 
             if (!response.ok || !result.success) {
-                const message = result &&
-                    result.data &&
-                    result.data.message
-                    ? result.data.message
-                    : 'Помилка запиту до сервера.';
-
-                throw new Error(message);
+                const message = result?.data?.message ||
+                    'Помилка запиту до сервера.';
+                const error = new Error(message);
+                error.code = result?.data?.code || '';
+                error.status = response.status;
+                throw error;
             }
 
             return result.data;
         }
 
         async load() {
-            const data = await this.request(
-                'uams_get_collection',
-                {}
-            );
-
-            this.songs = Array.isArray(data.songs)
-                ? data.songs
+            const data = await this.request('uams_get_collection', {});
+            this.songs = Array.isArray(data.collection)
+                ? data.collection
                 : [];
+
+            this.count = Number(data.count || 0);
+            this.limit = Number(data.limit || 10);
+            this.isPro = Boolean(data.isPro);
+            this.canSave = Boolean(data.canSave);
 
             return this.songs;
         }
 
         async save(song) {
-            if (!song || !song.title) {
+            if (!song || !String(song.title || '').trim()) {
                 throw new Error('Вкажіть назву композиції.');
             }
 
-            const data = await this.request(
-                'uams_save_song',
-                {
-                    song: song
-                }
-            );
+            const data = await this.request('uams_save_song', {
+                title: song.title,
+                key: song.key || '',
+                bpm: song.bpm || 0,
+                duration: song.duration || 0,
+                transpose: song.transpose || 0,
+                notes: song.notes || '',
+                lyrics: song.lyrics || '',
+                translation: song.translation || '',
+                chords: song.chords || [],
+                segments: song.segments || []
+            });
 
-            await this.load();
+            if (data.song) {
+                this.songs.push(data.song);
+            }
+
+            this.count = Number(data.count || this.songs.length);
 
             return data;
         }
 
-        async remove(id) {
-            if (!id) {
-                throw new Error('Не визначено композицію.');
+        async uploadMedia(songId, file, kind) {
+            if (!songId || !file) {
+                throw new Error('Не вказано композицію або аудіофайл.');
             }
 
-            const data = await this.request(
-                'uams_delete_song',
-                {
-                    id: id
-                }
-            );
+            const body = new FormData();
+            body.append('action', 'uams_upload_media');
+            body.append('nonce', this.nonce);
+            body.append('song_id', songId);
+            body.append('kind', kind === 'processed' ? 'processed' : 'original');
+            body.append('file', file, file.name || 'audio.wav');
 
-            await this.load();
+            const response = await fetch(this.ajaxUrl, {
+                method: 'POST',
+                credentials: 'same-origin',
+                body
+            });
+
+            let result;
+
+            try {
+                result = await response.json();
+            } catch (error) {
+                throw new Error('Сервер повернув некоректну відповідь під час завантаження аудіо.');
+            }
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result?.data?.message || 'Не вдалося завантажити аудіофайл.'
+                );
+            }
+
+            return result.data;
+        }
+
+        async getMediaUrl(songId, kind) {
+            return this.request('uams_get_media_url', {
+                song_id: songId,
+                kind: kind === 'processed' ? 'processed' : 'original'
+            });
+        }
+
+        async remove(songId) {
+            const data = await this.request('uams_delete_song', {
+                song_id: songId
+            });
+
+            this.songs = this.songs.filter(song => song.id !== songId);
+            this.count = Number(data.count || this.songs.length);
 
             return data;
         }
 
-        async updateNotes(id, notes) {
-            if (!id) {
-                throw new Error('Не визначено композицію.');
-            }
+        async updateNotes(songId, notes) {
+            const data = await this.request('uams_update_notes', {
+                song_id: songId,
+                notes: notes
+            });
 
-            const data = await this.request(
-                'uams_update_notes',
-                {
-                    id: id,
-                    notes: notes
-                }
-            );
-
-            await this.load();
+            const song = this.songs.find(item => item.id === songId);
+            if (song) song.notes = notes;
 
             return data;
         }
 
         find(query) {
-            query = String(query || '').toLowerCase().trim();
+            const term = String(query || '').trim().toLocaleLowerCase();
 
-            if (!query) {
-                return this.songs.slice();
-            }
+            if (!term) return this.songs.slice();
 
             return this.songs.filter(song => {
-                const content = [
+                const searchable = [
                     song.title,
                     song.key,
                     song.notes,
-                    song.artist
-                ].join(' ').toLowerCase();
+                    song.lyrics,
+                    song.translation
+                ].join(' ').toLocaleLowerCase();
 
-                return content.includes(query);
+                return searchable.includes(term);
             });
         }
 
         sort(mode) {
-            const songs = this.songs.slice();
+            const items = this.songs.slice();
 
-            if (mode === 'title') {
-                songs.sort((a, b) =>
-                    String(a.title).localeCompare(String(b.title))
-                );
-            } else if (mode === 'oldest') {
-                songs.reverse();
-            } else {
-                songs.sort((a, b) =>
-                    Number(b.created || 0) - Number(a.created || 0)
-                );
+            switch (mode) {
+                case 'oldest':
+                    return items.sort((a, b) =>
+                        Number(a.created || 0) - Number(b.created || 0)
+                    );
+
+                case 'title':
+                    return items.sort((a, b) =>
+                        String(a.title || '').localeCompare(
+                            String(b.title || ''),
+                            undefined,
+                            { sensitivity: 'base' }
+                        )
+                    );
+
+                case 'key':
+                    return items.sort((a, b) =>
+                        String(a.key || '').localeCompare(
+                            String(b.key || '')
+                        )
+                    );
+
+                case 'newest':
+                default:
+                    return items.sort((a, b) =>
+                        Number(b.created || 0) - Number(a.created || 0)
+                    );
             }
-
-            return songs;
         }
     }
 
