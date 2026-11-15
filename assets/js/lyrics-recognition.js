@@ -2,63 +2,25 @@
     'use strict';
 
     class UAMSLyricsRecognition {
-        constructor() {
-            this.recognizer = null;
-            this.ready = false;
-        }
-
-        async initialize(options) {
-            options = options || {};
-
-            if (typeof options.recognizer !== 'function') {
-                throw new Error(
-                    'Для розпізнавання співу потрібен підключений модуль Whisper або інший сумісний розпізнавач.'
-                );
-            }
-
-            this.recognizer = options.recognizer;
-            this.ready = true;
-
-            return true;
-        }
-
         async recognize(audioBuffer, options) {
-            if (!this.ready || !this.recognizer) {
-                throw new Error(
-                    'Модель розпізнавання співу не підключена.'
-                );
-            }
-
             if (!audioBuffer) {
-                throw new Error('Немає аудіоданих для розпізнавання.');
+                throw new Error('Немає аудіо для розпізнавання.');
             }
 
-            options = options || {};
+            if (!window.UAMSModelLoader) {
+                throw new Error('Не підключений завантажувач AI-моделей.');
+            }
 
-            const result = await this.recognizer(
+            const result = await window.UAMSModelLoader.transcribe(
                 audioBuffer,
-                {
-                    language: options.language || 'auto',
-                    task: 'transcribe'
-                }
+                options || {}
             );
 
-            if (!result || typeof result.text !== 'string') {
-                throw new Error(
-                    'Модель не повернула текст розпізнавання.'
-                );
-            }
-
             return {
-                text: result.text,
-                segments: Array.isArray(result.segments)
-                    ? result.segments
-                    : []
+                text: result.text || '',
+                segments: Array.isArray(result.chunks) ? result.chunks : [],
+                language: result.language || ''
             };
-        }
-
-        isReady() {
-            return this.ready;
         }
     }
 
