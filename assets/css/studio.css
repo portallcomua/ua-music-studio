@@ -1,0 +1,543 @@
+/* =========================================================
+   UA MUSIC STUDIO 3.0.0
+   Основні стилі музичної студії
+   ========================================================= */
+
+.uams-studio {
+    --uams-primary: #2563eb;
+    --uams-primary-dark: #1d4ed8;
+    --uams-secondary: #0f172a;
+    --uams-background: #f1f5f9;
+    --uams-card: #ffffff;
+    --uams-border: #dbe3ed;
+    --uams-text: #172033;
+    --uams-muted: #64748b;
+    --uams-success: #15803d;
+    --uams-danger: #dc2626;
+    --uams-radius: 12px;
+
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    color: var(--uams-text);
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+.uams-studio *,
+.uams-studio *::before,
+.uams-studio *::after {
+    box-sizing: border-box;
+}
+
+.uams-studio button,
+.uams-studio input,
+.uams-studio select,
+.uams-studio textarea {
+    font: inherit;
+}
+
+.uams-header {
+    padding: 24px;
+    margin-bottom: 20px;
+    color: #fff;
+    background: linear-gradient(135deg, #172554, #2563eb);
+    border-radius: var(--uams-radius);
+}
+
+.uams-header h2 {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.uams-header p {
+    margin: 0;
+    color: #dbeafe;
+}
+
+.uams-panel {
+    padding: 20px;
+    margin-bottom: 18px;
+    background: var(--uams-card);
+    border: 1px solid var(--uams-border);
+    border-radius: var(--uams-radius);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.uams-panel h3 {
+    margin: 0 0 16px;
+    color: var(--uams-secondary);
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.uams-panel h4 {
+    margin: 0 0 10px;
+    font-size: 16px;
+}
+
+.uams-muted {
+    color: var(--uams-muted);
+    font-size: 13px;
+}
+
+.uams-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.uams-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.uams-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    margin-bottom: 12px;
+}
+
+.uams-field label {
+    font-weight: 600;
+    color: var(--uams-secondary);
+}
+
+.uams-studio input[type="text"],
+.uams-studio input[type="url"],
+.uams-studio input[type="number"],
+.uams-studio input[type="file"],
+.uams-studio select,
+.uams-studio textarea {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 12px;
+    color: var(--uams-text);
+    background: #fff;
+    border: 1px solid var(--uams-border);
+    border-radius: 8px;
+}
+
+.uams-studio textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.uams-studio input:focus,
+.uams-studio select:focus,
+.uams-studio textarea:focus {
+    outline: 2px solid rgba(37, 99, 235, 0.2);
+    border-color: var(--uams-primary);
+}
+
+.uams-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 9px 16px;
+    color: #fff !important;
+    background: var(--uams-primary);
+    border: 1px solid var(--uams-primary);
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.uams-button:hover {
+    color: #fff !important;
+    background: var(--uams-primary-dark);
+    transform: translateY(-1px);
+}
+
+.uams-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.uams-button-secondary {
+    color: var(--uams-secondary) !important;
+    background: #fff;
+    border-color: var(--uams-border);
+}
+
+.uams-button-secondary:hover {
+    color: var(--uams-secondary) !important;
+    background: #f8fafc;
+}
+
+.uams-button-danger {
+    background: var(--uams-danger);
+    border-color: var(--uams-danger);
+}
+
+.uams-button-success {
+    background: var(--uams-success);
+    border-color: var(--uams-success);
+}
+
+.uams-player {
+    width: 100%;
+    margin: 12px 0;
+}
+
+.uams-player audio {
+    display: block;
+    width: 100%;
+}
+
+.uams-player-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.uams-time {
+    color: var(--uams-muted);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+
+.uams-progress {
+    width: 100%;
+    height: 9px;
+    overflow: hidden;
+    background: #e2e8f0;
+    border-radius: 20px;
+}
+
+.uams-progress-bar {
+    width: 0;
+    height: 100%;
+    background: var(--uams-primary);
+    border-radius: inherit;
+    transition: width 0.15s linear;
+}
+
+.uams-status {
+    display: none;
+    padding: 11px 14px;
+    margin: 12px 0;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.uams-status.is-visible {
+    display: block;
+}
+
+.uams-status-info {
+    color: #1e40af;
+    background: #dbeafe;
+}
+
+.uams-status-success {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.uams-status-error {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.uams-analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.uams-analysis-item {
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid var(--uams-border);
+    border-radius: 10px;
+}
+
+.uams-analysis-item span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--uams-muted);
+    font-size: 12px;
+}
+
+.uams-analysis-item strong {
+    display: block;
+    color: var(--uams-secondary);
+    font-size: 21px;
+}
+
+.uams-chords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.uams-chord {
+    min-width: 70px;
+    padding: 10px;
+    text-align: center;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 9px;
+}
+
+.uams-chord strong {
+    display: block;
+    color: #1d4ed8;
+    font-size: 18px;
+}
+
+.uams-chord small {
+    display: block;
+    color: var(--uams-muted);
+    font-size: 11px;
+}
+
+.uams-chord.is-active {
+    color: #fff;
+    background: var(--uams-primary);
+    border-color: var(--uams-primary);
+}
+
+.uams-chord.is-active strong,
+.uams-chord.is-active small {
+    color: #fff;
+}
+
+.uams-chord-diagram {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid var(--uams-border);
+    border-radius: 10px;
+}
+
+.uams-chord-diagram svg {
+    display: block;
+    max-width: 130px;
+    height: auto;
+}
+
+.uams-transpose {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.uams-transpose-value {
+    min-width: 55px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.uams-lyrics {
+    min-height: 160px;
+    padding: 15px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: #f8fafc;
+    border: 1px solid var(--uams-border);
+    border-radius: 9px;
+}
+
+.uams-lyrics-line {
+    padding: 5px 8px;
+    border-radius: 5px;
+}
+
+.uams-lyrics-line.is-active {
+    color: #1e40af;
+    background: #dbeafe;
+    font-weight: 700;
+}
+
+.uams-collection-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.uams-collection-toolbar input {
+    flex: 1;
+    min-width: 180px;
+}
+
+.uams-song-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.uams-song-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px;
+    background: #fff;
+    border: 1px solid var(--uams-border);
+    border-radius: 9px;
+}
+
+.uams-song-info {
+    flex: 1;
+    min-width: 180px;
+}
+
+.uams-song-info strong {
+    display: block;
+    font-size: 16px;
+}
+
+.uams-song-info small {
+    color: var(--uams-muted);
+}
+
+.uams-song-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.uams-empty {
+    padding: 25px 15px;
+    color: var(--uams-muted);
+    text-align: center;
+    background: #f8fafc;
+    border: 1px dashed var(--uams-border);
+    border-radius: 9px;
+}
+
+.uams-limit {
+    padding: 13px;
+    margin: 12px 0;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 9px;
+}
+
+.uams-limit strong {
+    color: #1d4ed8;
+}
+
+.uams-pro {
+    padding: 16px;
+    background: linear-gradient(135deg, #172554, #1e40af);
+    border-radius: 10px;
+    color: #fff;
+}
+
+.uams-pro h4 {
+    color: #fff;
+}
+
+.uams-pro p {
+    color: #dbeafe;
+}
+
+.uams-hidden {
+    display: none !important;
+}
+
+.uams-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.uams-checkbox input {
+    width: 17px;
+    height: 17px;
+}
+
+.uams-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--uams-border);
+}
+
+.uams-tab {
+    padding: 9px 14px;
+    color: var(--uams-muted);
+    background: transparent;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+}
+
+.uams-tab.is-active {
+    color: var(--uams-primary);
+    border-bottom-color: var(--uams-primary);
+    font-weight: 700;
+}
+
+@media (max-width: 700px) {
+    .uams-studio {
+        margin: 10px auto;
+        font-size: 14px;
+    }
+
+    .uams-header {
+        padding: 18px;
+    }
+
+    .uams-header h2 {
+        font-size: 22px;
+    }
+
+    .uams-panel {
+        padding: 14px;
+    }
+
+    .uams-analysis-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .uams-song-item {
+        align-items: stretch;
+    }
+
+    .uams-song-actions {
+        width: 100%;
+    }
+
+    .uams-song-actions .uams-button {
+        flex: 1;
+    }
+
+    .uams-button {
+        min-height: 42px;
+    }
+}
+
+@media (max-width: 380px) {
+    .uams-analysis-grid {
+        grid-template-columns: 1fr;
+    }
+}
